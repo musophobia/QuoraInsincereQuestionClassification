@@ -22,7 +22,9 @@ from keras import backend as K
 ### Dataset: https://www.kaggle.com/c/quora-insincere-questions-classification/data
 
 ### Dataset Description
-  Train and test data are stored in two separate csv files in text format.  We load them in pandas dataframe.
+  Train and test data are stored in two separate csv files in text format.
+  ![Screenshot](snapshot.png)
+  We load them in pandas dataframe.
   ```
   trainDf=pd.read_csv("train.csv")
   ```
