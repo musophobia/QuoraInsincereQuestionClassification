@@ -93,6 +93,10 @@ def f1(y_true, y_pred):
  
 *Create keras LSTM model to fit the data.*
 
+![Screenshot](model.png)
+
+
+
 ```
 model = Sequential()
 model.add(Bidirectional(CuDNNLSTM(64, return_sequences=True), input_shape=(30, 300)))
