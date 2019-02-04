@@ -121,7 +121,10 @@ print(model.metrics_names[1],":",score[1])
 print(model.metrics_names[2],":",score[2])
 
 ```
-loss : 0.34119263452378307
-acc : 0.949490474080638
-f1 : 0.5371880054262607 
+We classified the questions by the trained model on our test dataset. Using following performance 
+matrices, we find following results.
+  
+Performance measure | Loss | Accuracy | F1 |
+--- | --- | --- | --- |
+Value |  0.34119263452378307 | 0.949490474080638 | 0.5371880054262607  |
   
