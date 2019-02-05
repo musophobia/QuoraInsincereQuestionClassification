@@ -67,27 +67,25 @@ def textToArr(txt):
     embeds+=[zeroVect]*(numOfVect-len(embeds)) 
     return np.array(embeds)
 
-valVects = np.array([textToArr(x) for x in tqdm(valDf["question_text"])])
-valY = np.array(valDf["target"])
-
  ```
- *Define f1 accuracy metrices*
+ *Define recall,precision,f1 metrices*
 ```
-def f1(y_true, y_pred):
-    def recall(y_true, y_pred): 
-        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-        recall = true_positives / (possible_positives + K.epsilon())
-        return recall
+def recall(y_true, y_pred): 
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+      
+def precision(y_true, y_pred): 
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
 
-    def precision(y_true, y_pred): 
-        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-        precision = true_positives / (predicted_positives + K.epsilon())
-        return precision
-    precision = precision(y_true, y_pred)
-    recall = recall(y_true, y_pred)
-    return 2*((precision*recall)/(precision+recall+K.epsilon()))
+def f1(y_true, y_pred):
+    prec = precision(y_true, y_pred)
+    rec = recall(y_true, y_pred)
+    return 2*((prec*rec)/(prec+rec+K.epsilon()))
 
 ```
  
@@ -113,23 +111,28 @@ def batchGenerate(train_df):
             textArr = np.array([textToArr(text) for text in texts])
             yield textArr, np.array(train_df["target"][i*batchSize:(i+1)*batchSize])
 
-bg = batchGenerate(trainDf)
-model.fit_generator(bg, epochs=20, steps_per_epoch=1000, validation_data=(valVects, valY), verbose=True)
+trainGen = batchGenerate(trainDf)
+valGen=batchGenerate(valDf)
+model.fit_generator(trainGen, epochs=20, steps_per_epoch=1000, validation_data=valGen, validation_steps=500, verbose=True)
 ```
 ### Results
 
 ```
-score = model.evaluate(testVects, testY, batch_size=1024, verbose=1)
+testGen=batchGenerate(testDf)
+score = model.evaluate_generator(testGen, steps=2000, verbose=1)
+
 print(model.metrics_names[0],":",score[0])
 print(model.metrics_names[1],":",score[1])
 print(model.metrics_names[2],":",score[2])
+print(model.metrics_names[3],":",score[3])
+print(model.metrics_names[4],":",score[4])
 
 ```
 We classified the questions by the trained model on our test dataset. Using following performance 
 matrices, we find following results.
 
   
-Performance measure | Loss | Accuracy | F1 |
---- | --- | --- | --- |
-Value |  0.14998370048999787 | 0.9546 | 0.6104958294868469  |
+Performance measure | Loss | Accuracy | Recall | Precision | F1
+--- | --- | --- | --- | --- | --- 
+Value |  0.10592 | 0.9585 | 0.5945 | 0.6958 | 0.6233
   
